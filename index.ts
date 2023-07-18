@@ -1,5 +1,6 @@
 import "dotenv/config"
 import "express-async-errors"
+import os from "os"
 import express from "express"
 import routes from "./routes/index"
 import connectDB from "./db/connect"
@@ -18,6 +19,9 @@ app.use(
     credentials: true,
   })
 )
+app.use("/health-check", (_, res) => {
+  res.status(200).send(os.hostname())
+})
 app.use("/api", routes)
 
 app.use(handleErrors)
