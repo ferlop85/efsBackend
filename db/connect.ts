@@ -8,7 +8,7 @@ async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URL)
     console.log("Conexión exitosa con Mongo DB")
-    await resetDB()
+    // await resetDB()
   } catch (error) {
     console.log("Hubo un error al conectarnos a la BBDD", error)
   }
