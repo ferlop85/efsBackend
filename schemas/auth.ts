@@ -2,13 +2,17 @@ import { Request, Response } from "express"
 import z from "zod"
 
 export interface User {
-  sub: string
+  _id?: string
+  sub?: string
   firstname: string
   lastname: string
   roles: {
     admin: boolean
     seller: boolean
   }
+  email?: string
+  login_code?: string
+  image_url?: string
 }
 
 export interface MyRequest<

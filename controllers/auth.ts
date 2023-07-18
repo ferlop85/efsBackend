@@ -1,6 +1,5 @@
-import { Request, Response } from "express"
 import sendEmail from "../helpers/mailer"
-import UserModel from "../models/user"
+import { UserModel } from "../models/user"
 import jwt from "jsonwebtoken"
 import { CONFIG } from "../utils/config"
 import { MyError } from "../schemas/errors"
@@ -30,7 +29,7 @@ export const login = async (
     sub: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
-    imageUrl: user.imageUrl,
+    image_url: user.image_url,
     roles: user.roles,
   }
 

@@ -5,7 +5,7 @@ const userSchema = new Schema({
   lastname: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   login_code: { type: String, required: true, length: 6 },
-  imageUrl: String,
+  image_url: String,
   roles: {
     type: {
       admin: Boolean,
@@ -15,4 +15,4 @@ const userSchema = new Schema({
   },
 })
 
-export default model("User", userSchema, "users")
+export const UserModel = model("User", userSchema, "users")
