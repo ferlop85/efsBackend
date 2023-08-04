@@ -84,6 +84,23 @@ export const getById = async (req: MyRequest, res: Response) => {
   }
 }
 
+export const getByClient = async (
+  req: MyRequest<any, { id: string }>,
+  res: Response
+) => {
+  const { id } = req.params
+  try {
+    const sales = await SaleModel.find({ client: id })
+      .populate("client", "firstname lastname")
+      .sort({ createdAt: -1 })
+      .limit(5)
+
+    res.status(200).json({ ok: true, data: sales })
+  } catch (error) {
+    res.status(500).json({ ok: false, message: "Error del servidor" })
+  }
+}
+
 export const create = async (req: MyRequest<Sale>, res: Response) => {
   const { products, payment_methods, client, referalDoc, comissions } = req.body
 
