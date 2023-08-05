@@ -14,10 +14,12 @@ const PAYMENT_METHOD_TYPES = [
 const TIME_UNITS = z.enum(["Días", "Meses", "Años"])
 
 const saleProductSchema = z.object({
+  _id: z.string(),
   code: z.string(),
   name: z.string().optional(),
   unit_price: z.number(),
-  discount: z.number().optional(),
+  discount: z.number(),
+  iva: z.number(),
 })
 const salePaymentMethodSchema = z.object({
   method: z.enum(PAYMENT_METHOD_TYPES),
@@ -28,6 +30,7 @@ const salePaymentMethodSchema = z.object({
 
 export const saleSchema = z.object({
   products: z.array(saleProductSchema),
+  total: z.number(),
   payment_methods: z.array(salePaymentMethodSchema),
   client: z.custom(isValidObjectId),
   comissions: z.number().nullish(),
@@ -40,6 +43,12 @@ export const CreationSchema = z.object({
 
 export const GetByIdSchema = z.object({
   params: z.object({ id: z.custom(isValidObjectId, "ID inválido") }),
+})
+export const GetByEntityAndIdSchema = z.object({
+  params: z.object({
+    id: z.custom(isValidObjectId, "ID inválido"),
+    entity: z.enum(["client", "product"]),
+  }),
 })
 
 export type Sale = z.infer<typeof saleSchema>

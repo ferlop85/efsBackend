@@ -6,7 +6,6 @@ import { Sale } from "../schemas/sales"
 import genCreationDate from "../helpers/genCreationDate"
 import ProductModel from "../models/product"
 import { Types } from "mongoose"
-
 const { ObjectId } = Types
 
 type GetAllFilter = {
@@ -84,16 +83,50 @@ export const getById = async (req: MyRequest, res: Response) => {
   }
 }
 
-export const getByClient = async (
-  req: MyRequest<any, { id: string }>,
+export const getByEntity = async (
+  req: MyRequest<any, { id: string; entity: "client" | "product" }>,
   res: Response
 ) => {
-  const { id } = req.params
+  const { entity, id } = req.params
+
+  const _id = new ObjectId(id)
+
+  let clientMatch = { [entity]: _id }
+
+  let productMatch = {
+    products: {
+      $elemMatch: {
+        _id,
+      },
+    },
+  }
+
+  let match = entity === "client" ? clientMatch : productMatch
+  console.log({ match })
+
   try {
-    const sales = await SaleModel.find({ client: id })
-      .populate("client", "firstname lastname")
-      .sort({ createdAt: -1 })
-      .limit(5)
+    const sales = await SaleModel.aggregate([
+      { $match: match },
+      {
+        $lookup: {
+          from: "clients",
+          localField: "client",
+          foreignField: "_id",
+          as: "client",
+        },
+      },
+      {
+        $project: {
+          products: 1,
+          total_amount: 1,
+          gathered: 1,
+          createdAt: 1,
+          client: { $arrayElemAt: ["$client", 0] },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      { $limit: 5 },
+    ])
 
     res.status(200).json({ ok: true, data: sales })
   } catch (error) {
@@ -102,12 +135,8 @@ export const getByClient = async (
 }
 
 export const create = async (req: MyRequest<Sale>, res: Response) => {
-  const { products, payment_methods, client, referalDoc, comissions } = req.body
-
-  const total_amount = products.reduce(
-    (acc: number, curr) => acc + curr.unit_price,
-    0
-  )
+  const { products, payment_methods, client, referalDoc, comissions, total } =
+    req.body
 
   const gathered = payment_methods.reduce(
     (acc: number, curr: any) => acc + curr.amount,
@@ -116,7 +145,7 @@ export const create = async (req: MyRequest<Sale>, res: Response) => {
 
   const createdSale = await SaleModel.create({
     operation_date: new Date(),
-    total_amount,
+    total_amount: total,
     gathered,
     products,
     payment_methods,
@@ -127,7 +156,7 @@ export const create = async (req: MyRequest<Sale>, res: Response) => {
   })
 
   await ClientModel.findByIdAndUpdate(createdSale.client, {
-    $inc: { "sales.count": 1, "sales.amount": total_amount },
+    $inc: { "sales.count": 1, "sales.amount": total },
   })
 
   if (!!referalDoc) {
