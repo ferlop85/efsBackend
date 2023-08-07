@@ -12,6 +12,11 @@ const app = express()
 connectDB()
 app.use(cookieParser())
 app.use(express.json())
+
+// Para MULTER
+app.use(express.urlencoded({ extended: true }))
+
+// Configuración de CORS, que solo nuestro frontend pueda acceder a la API
 app.use(
   cors({
     origin: process.env.FRONTEND_URL, // Obligatorio que no sea "*" cuando usamos "credentials: true"
@@ -19,11 +24,16 @@ app.use(
     credentials: true,
   })
 )
+
+// Ruta para comprobar que el servidor está activo
 app.use("/health-check", (_, res) => {
   res.status(200).send(os.hostname())
 })
+
+// Gestión de requests
 app.use("/api", routes)
 
+// Gestión de errores
 app.use(handleErrors)
 
 const PORT = process.env.PORT || 4000

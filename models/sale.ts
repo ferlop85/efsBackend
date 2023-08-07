@@ -31,6 +31,7 @@ const saleSchema = new Schema(
       year: Number,
     },
     referalDoc: String,
+    attachments: [String],
   },
   { timestamps: true }
 )
