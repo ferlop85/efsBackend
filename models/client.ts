@@ -8,12 +8,13 @@ const clientSchema = new Schema({
   phoneNumber: { type: String },
   document_type: { type: String, required: true },
   document_value: { type: String, required: true },
-  searchField: { type: String, required: true },
-  comissions: Number,
+  searchField: { type: String, required: true }, // Concatenación de otros campos para facilitar la búsqueda
+  comissions: Number, // Comisiones por recomendación a otros clientes
+  attachments: [String],
   sales: {
     count: Number,
     amount: Number,
-  },
+  }, // Campo calculado para evitar queries complejas
 })
 const ClientModel = model("Client", clientSchema, "clients")
 export default ClientModel

@@ -5,7 +5,7 @@ export const productSchema = new Schema({
   code: {
     type: String,
     required: true,
-    unique: true, // Validación de BBDD, no podemos hacerla antes, nos llega como MongoDB error
+    unique: true, // Validación de BBDD, no podemos hacerla antes, nos llega como MongoDB error y no como Mongoose Error
   },
   supplier_cost: { type: Number, required: true },
   iva: {
@@ -18,6 +18,7 @@ export const productSchema = new Schema({
   profit_margin: { type: Number, default: 0.15, required: true },
   discount: { type: Number, default: 0, required: true },
   sold: { type: Boolean, default: false },
+  attachments: [String],
 })
 
 const ProductModel = model("Product", productSchema, "products")
