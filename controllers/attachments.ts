@@ -22,6 +22,7 @@ export const attach = async (
   if (req.file) {
     const fileExt = req.file.originalname.split(".").pop()
     const newAttachment = new AttachmentModel({
+      description: req.body.description,
       file_name: req.file.originalname,
       file_ext: fileExt,
       entity,

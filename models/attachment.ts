@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose"
 
 export const attachmentSchema = new Schema(
   {
+    description: { type: String, required: true },
     file_name: { type: String, required: true },
     file_size: { type: Number, required: true },
     file_ext: { type: String, required: true },
