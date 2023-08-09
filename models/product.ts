@@ -19,6 +19,7 @@ export const productSchema = new Schema({
   discount: { type: Number, default: 0, required: true },
   sold: { type: Boolean, default: false },
   attachments: [String],
+  comments: Number,
 })
 
 const ProductModel = model("Product", productSchema, "products")

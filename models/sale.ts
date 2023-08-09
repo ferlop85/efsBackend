@@ -1,12 +1,5 @@
 import { Schema, Types, model } from "mongoose"
 
-export const paymentMethodSchema = new Schema({
-  method: { type: String },
-  amount: { type: Number, required: true },
-  time_unit: { type: String },
-  time_value: { type: Number },
-})
-
 const saleSchema = new Schema(
   {
     operation_date: Date,
@@ -21,7 +14,14 @@ const saleSchema = new Schema(
         discount: { type: Number, default: 0 },
       },
     ],
-    payment_methods: [paymentMethodSchema],
+    payment_methods: [
+      {
+        method: { type: String },
+        amount: { type: Number, required: true },
+        time_unit: { type: String },
+        time_value: { type: Number },
+      },
+    ],
     user: { type: Types.ObjectId, ref: "User" },
     client: { type: Types.ObjectId, ref: "Client" },
     creation: {
@@ -32,6 +32,7 @@ const saleSchema = new Schema(
     },
     referalDoc: String,
     attachments: [String],
+    comments: Number,
   },
   { timestamps: true }
 )

@@ -29,6 +29,7 @@ export const login = async (
     sub: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
+    email: user.email,
     image_url: user.image_url,
     roles: user.roles,
   }
