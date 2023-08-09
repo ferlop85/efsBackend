@@ -18,6 +18,9 @@ export const handleErrors = (
   res: Response,
   next: NextFunction
 ) => {
+  if (!!req.session) {
+    req.session.abortTransaction()
+  }
   // No abstraemos en otra función para tener autocomplete
   if (err instanceof ZodError) {
     console.log("ZOD ERROR")

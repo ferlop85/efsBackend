@@ -4,6 +4,7 @@ import AttachmentModel from "../models/attachment"
 import { MyRequest, MyResponse } from "../schemas/auth"
 import { EntitiesNames } from "../schemas/global"
 import genExecutorInfo from "../helpers/genExecutorInfo"
+import startMongooseSession from "../helpers/startMongooseSession"
 
 export const getAll = async (req: MyRequest, res: MyResponse) => {
   const { entity_id } = req.params
@@ -20,6 +21,9 @@ export const attach = async (
   res: MyResponse
 ) => {
   const { entity, id } = req.params
+
+  const session = await startMongooseSession(req)
+
   if (req.file) {
     const fileExt = req.file.originalname.split(".").pop()
     const newAttachment = new AttachmentModel({
@@ -38,12 +42,14 @@ export const attach = async (
       folderName: "attachments",
     })
     newAttachment.url = blobUrl
-    await newAttachment.save()
+    await newAttachment.save({ session })
 
     const update = { $push: { attachments: blobUrl } }
 
-    await updateEntity({ id, entity, update })
+    await updateEntity({ id, entity, update, session })
   }
+
+  session.commitTransaction()
 
   res.status(201).json({ ok: true, message: "Archivo subido con éxito" })
 }
@@ -53,6 +59,9 @@ export const remove = async (
   res: MyResponse
 ) => {
   const { id } = req.params
+
+  const session = await startMongooseSession(req)
+
   const attachment = await AttachmentModel.findById(id)
   if (attachment) {
     await deleteBlob({
@@ -71,9 +80,13 @@ export const remove = async (
         id: deletedAttachment.entity_id,
         entity: deletedAttachment.entity,
         update,
+        session,
       })
     }
   }
+
+  session.commitTransaction()
+
   res.status(200).json({
     ok: true,
     message: "Archivo eliminado con éxito",
