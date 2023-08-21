@@ -1,4 +1,5 @@
 import { Request, Response } from "express"
+import { ClientSession } from "mongoose"
 import z from "zod"
 
 export interface User {
@@ -23,6 +24,7 @@ export interface MyRequest<
   Locals extends Record<string, any> = any
 > extends Request<ReqParams, ResBody, ReqBody, ReqQuery, Locals> {
   user?: User
+  session?: ClientSession
   cookies: {
     jwt: string
   }

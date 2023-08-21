@@ -1,14 +1,17 @@
 import { deleteBlob, updateBlob } from "../helpers/azureBlob"
+import updateEntity from "../helpers/updateEntity"
 import AttachmentModel from "../models/attachment"
-import ClientModel from "../models/client"
-import ProductModel from "../models/product"
-import SaleModel from "../models/sale"
 import { MyRequest, MyResponse } from "../schemas/auth"
 import { EntitiesNames } from "../schemas/global"
+import genExecutorInfo from "../helpers/genExecutorInfo"
+import startMongooseSession from "../helpers/startMongooseSession"
 
 export const getAll = async (req: MyRequest, res: MyResponse) => {
-  const { entity, id } = req.params
-  const attachments = await AttachmentModel.find({ entity, entity_id: id })
+  const { entity_id } = req.params
+  const attachments = await AttachmentModel.find({
+    entity_id,
+    deleted: false,
+  })
 
   res.status(200).json({ ok: true, data: attachments })
 }
@@ -17,39 +20,36 @@ export const attach = async (
   req: MyRequest<any, { entity: EntitiesNames; id: string }>,
   res: MyResponse
 ) => {
-  console.log({ body: req.user, file: req.file, files: req.files })
   const { entity, id } = req.params
+
+  const session = await startMongooseSession(req)
+
   if (req.file) {
     const fileExt = req.file.originalname.split(".").pop()
     const newAttachment = new AttachmentModel({
+      description: req.body.description,
       file_name: req.file.originalname,
       file_ext: fileExt,
       entity,
       entity_id: id,
-      creator: req.user?.sub,
       file_size: req.file.size,
+      creator: req.user?.sub,
+      creatorInfo: genExecutorInfo(req),
     })
-    const blobName = await updateBlob({
+    const { blobUrl } = await updateBlob({
       buffer: req.file.buffer,
       fileName: `${newAttachment._id}.${fileExt}`,
       folderName: "attachments",
     })
-    newAttachment.url = `${process.env.AZURE_BLOB_URL}/efs/${blobName}`
-    const createdAttachment = await newAttachment.save()
+    newAttachment.url = blobUrl
+    await newAttachment.save({ session })
 
-    const update = { $push: { attachments: createdAttachment.url } }
+    const update = { $push: { attachments: blobUrl } }
 
-    switch (entity) {
-      case "client":
-        await ClientModel.findByIdAndUpdate(id, update)
-      case "product":
-        await ProductModel.findByIdAndUpdate(id, update)
-      case "sale":
-        await SaleModel.findByIdAndUpdate(id, update)
-      default:
-        break
-    }
+    await updateEntity({ id, entity, update, session })
   }
+
+  session.commitTransaction()
 
   res.status(201).json({ ok: true, message: "Archivo subido con éxito" })
 }
@@ -59,6 +59,9 @@ export const remove = async (
   res: MyResponse
 ) => {
   const { id } = req.params
+
+  const session = await startMongooseSession(req)
+
   const attachment = await AttachmentModel.findById(id)
   if (attachment) {
     await deleteBlob({
@@ -66,8 +69,24 @@ export const remove = async (
       folderName: "attachments",
     })
 
-    await AttachmentModel.findByIdAndRemove(id)
+    const deletedAttachment = await AttachmentModel.findByIdAndUpdate(id, {
+      deleted: true,
+      deleterInfo: genExecutorInfo(req),
+    })
+    const update = { $pull: { attachments: attachment.url } }
+
+    if (!!deletedAttachment) {
+      await updateEntity({
+        id: deletedAttachment.entity_id,
+        entity: deletedAttachment.entity,
+        update,
+        session,
+      })
+    }
   }
+
+  session.commitTransaction()
+
   res.status(200).json({
     ok: true,
     message: "Archivo eliminado con éxito",

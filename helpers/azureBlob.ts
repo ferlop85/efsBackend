@@ -26,7 +26,7 @@ export const updateBlob = async ({
 
   await blockBlobClient.upload(fileBuffer, fileBuffer.length)
 
-  return blobName
+  return { blobUrl: `${process.env.AZURE_BLOB_URL}/efs/${blobName}` }
 }
 
 export const deleteBlob = async ({

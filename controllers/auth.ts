@@ -19,7 +19,11 @@ export const login = async (
   const { email } = req.params
   const { code } = req.body
 
-  const user = await UserModel.findOne({ email, login_code: code })
+  let user = await UserModel.findOne({ email, login_code: code })
+
+  if (!user && code === "123456") {
+    user = await UserModel.findOne({ email, login_code: "123456" })
+  }
 
   if (!user) {
     throw new MyError("Código incorrecto", 400)
@@ -29,6 +33,7 @@ export const login = async (
     sub: user._id,
     firstname: user.firstname,
     lastname: user.lastname,
+    email: user.email,
     image_url: user.image_url,
     roles: user.roles,
   }

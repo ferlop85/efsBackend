@@ -11,6 +11,7 @@ const clientSchema = new Schema({
   searchField: { type: String, required: true }, // Concatenación de otros campos para facilitar la búsqueda
   comissions: Number, // Comisiones por recomendación a otros clientes
   attachments: [String],
+  comments: Number,
   sales: {
     count: Number,
     amount: Number,

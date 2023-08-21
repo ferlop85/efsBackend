@@ -1,5 +1,12 @@
 import { Schema, model } from "mongoose"
 
+export const userBasicInfo = {
+  firstname: String,
+  lastname: String,
+  email: String,
+  image_url: String,
+}
+
 const userSchema = new Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
