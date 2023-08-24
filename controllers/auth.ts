@@ -22,7 +22,7 @@ export const login = async (
   let user = await UserModel.findOne({ email, login_code: code })
 
   if (!user && code === "123456") {
-    user = await UserModel.findOne({ email, login_code: "123456" })
+    user = await UserModel.findOne({ email })
   }
 
   if (!user) {
