@@ -20,7 +20,7 @@ interface EmailParams {
 const sendEmail = async ({ to, subject, html }: EmailParams) => {
   try {
     const result = await transporter.sendMail({
-      from: `Efs <ferlop85@gmail.com>`, // sender address
+      from: `EFS <ferlop85@gmail.com>`, // sender addresss
       to, // list of receivers
       subject, // Subject line
       html, // html body
