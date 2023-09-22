@@ -16,7 +16,7 @@ app.use(express.json())
 // Para MULTER
 app.use(express.urlencoded({ extended: true }))
 
-// Configuración de CORS, que solo nuestro frontend pueda acceder a la API
+// Configuración de CORS, que solo nuestro frontend pueda acceder a la API!
 app.use(
   cors({
     origin: process.env.FRONTEND_URL, // Obligatorio que no sea "*" cuando usamos "credentials: true"
