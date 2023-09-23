@@ -5,7 +5,7 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(
    AccountKey=${process.env.AZURE_BLOB_STORAGE_ACCOUNT_KEY};
    EndpointSuffix=core.windows.net`
 )
-const containerName = "efs"
+const containerName = "efsstorage"
 const containerClient = blobServiceClient.getContainerClient(containerName)
 
 interface BlobProps {
@@ -26,7 +26,7 @@ export const updateBlob = async ({
 
   await blockBlobClient.upload(fileBuffer, fileBuffer.length)
 
-  return { blobUrl: `${process.env.AZURE_BLOB_URL}/efs/${blobName}` }
+  return { blobUrl: `${process.env.AZURE_BLOB_URL}/${containerName}/${blobName}` }
 }
 
 export const deleteBlob = async ({
