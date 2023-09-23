@@ -5,7 +5,7 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(
    AccountKey=${process.env.AZURE_BLOB_STORAGE_ACCOUNT_KEY};
    EndpointSuffix=core.windows.net`
 )
-const containerName = "efsstorage"
+const containerName = "efscontenedor"
 const containerClient = blobServiceClient.getContainerClient(containerName)
 
 interface BlobProps {
